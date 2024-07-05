@@ -38,10 +38,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
     cookieStore.set('refresh_token', refresh_token);
 
     // set cookies
-    return NextResponse.redirect('http://localhost:3000/overlay');
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/overlay`);
   } catch (err) {
     console.log('error:', err);
-    return NextResponse.redirect('http://localhost:3000/error');
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/error`);
   }
 
   // console.log('code:', params.code);
