@@ -49,45 +49,67 @@ export default function NowPlayingPage() {
     document.body.style.background = 'transparent';
   }, []);
 
-  if (!currentlyPlaying) {
-    return null;
-  }
-
   return (
-    <div className='flex flex-row gap-4 rounded-md border-[2px] bg-zinc-950/30 border-zinc-700/30 w-full p-2 max-w-[550px]'>
-      <Image
-        src={currentlyPlaying?.album_image || 'https://placehold.co/100'}
-        width={100}
-        height={100}
-        alt='album image'
-        className='drop-shadow-lg rounded-sm'
-      />
+    <div className='flex flex-row gap-4 rounded-md border-[2px] bg-zinc-950/30 border-zinc-700/30 w-full p-1 max-w-[550px] items-center justify-center'>
+      <div className='relative aspect-square h-20'>
+        {currentlyPlaying ? (
+          <Image
+            src={currentlyPlaying?.album_image}
+            fill={true}
+            alt='album image'
+            sizes='100% 100%'
+            className='drop-shadow-lg rounded-sm object-contain'
+          />
+        ) : (
+          <Image
+            src={'/placeholder.png'}
+            fill={true}
+            alt='album image'
+            sizes='100% 100%'
+            className='drop-shadow-lg rounded-sm object-contain'
+          />
+        )}
+      </div>
 
-      <div className='flex flex-col justify-center gap-4 w-full overflow-hidden'>
+      <div className='flex flex-col justify-center gap-2 w-full overflow-hidden'>
         <div className=''>
           <div className='flex flex-row gap-2 justify-start items-center'>
             <PlayingAnimation />
-            <h1 className='text-2xl font-bold drop-shadow-lg truncate'>
-              {currentlyPlaying?.name}
-            </h1>
-          </div>
 
-          <p className='text-lg font-bold drop-shadow-lg truncate'>
-            {currentlyPlaying?.artist}
-          </p>
+            {currentlyPlaying ? (
+              <h1 className='text-xl font-bold drop-shadow-lg truncate'>
+                {currentlyPlaying?.name}
+              </h1>
+            ) : (
+              <h1 className='text-xl font-bold drop-shadow-lg truncate'>
+                No currently playing
+              </h1>
+            )}
+          </div>
+          {currentlyPlaying ? (
+            <p className='text-md font-bold drop-shadow-lg truncate'>
+              {currentlyPlaying?.artist}
+            </p>
+          ) : (
+            <p className='text-md font-bold drop-shadow-lg truncate'>
+              No artist
+            </p>
+          )}
         </div>
 
         <div className='flex flex-row w-full'>
           <div className='flex flex-grow h-2 bg-zinc-700/30 rounded-lg overflow-hidden'>
-            <div
-              className='h-2 bg-green-500'
-              style={{
-                width: `${Math.round(
-                  (currentlyPlaying.current_progress * 100) /
-                    currentlyPlaying.duration
-                )}%`
-              }}
-            ></div>
+            {currentlyPlaying && (
+              <div
+                className='h-2 bg-green-500'
+                style={{
+                  width: `${Math.round(
+                    (currentlyPlaying.current_progress * 100) /
+                      currentlyPlaying.duration
+                  )}%`
+                }}
+              ></div>
+            )}
           </div>
         </div>
       </div>
