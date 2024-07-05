@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import { CurrentlyPlaying } from '@/types/types';
 import Image from 'next/image';
+import Marquee from 'react-fast-marquee';
 import PlayingAnimation from '@/components/playing-animation';
 import useInterval from '@/hooks/useInterval';
 import { useSearchParams } from 'next/navigation';
@@ -12,6 +13,8 @@ export default function NowPlayingPage() {
   const searchParams = useSearchParams();
   const [currentlyPlaying, setCurrentlyPlaying] =
     useState<CurrentlyPlaying | null>(null);
+
+  const [marquee, setMarquee] = useState(false);
 
   useInterval(async () => {
     try {
@@ -26,12 +29,17 @@ export default function NowPlayingPage() {
       }
 
       const data = await response.json();
-
       setCurrentlyPlaying({
         name: data.item.name,
-        artist: data.item.artists[0].name,
-        album_image: data.item.album.images[0].url
+        artist: data.item.artists.map((artist: any) => artist.name).join(', '),
+        album_image: data.item.album.images[0].url,
+        current_progress: data.progress_ms,
+        duration: data.item.duration_ms
       });
+
+      if (data.item.name.length > 20) {
+        setMarquee(true);
+      }
     } catch (err) {
       console.log('error:', err);
     }
@@ -42,11 +50,11 @@ export default function NowPlayingPage() {
   }, []);
 
   if (!currentlyPlaying) {
-    return <div className='text-xl font-bold'>No content</div>;
+    return null;
   }
 
   return (
-    <div className='flex flex-row gap-4 rounded-md border bg-zinc-950/30 border-zinc-400/20 w-fit p-2 m-2'>
+    <div className='flex flex-row gap-4 rounded-md border-[2px] bg-zinc-950/30 border-zinc-700/30 w-full p-2 max-w-[550px]'>
       <Image
         src={currentlyPlaying?.album_image || 'https://placehold.co/100'}
         width={100}
@@ -55,15 +63,33 @@ export default function NowPlayingPage() {
         className='drop-shadow-lg rounded-sm'
       />
 
-      <div>
-        <PlayingAnimation />
-        <p className='text-xl font-bold drop-shadow-lg flex justify-center items-center gap-2'>
-          {currentlyPlaying?.name}
-        </p>
+      <div className='flex flex-col justify-center gap-4 w-full overflow-hidden'>
+        <div className=''>
+          <div className='flex flex-row gap-2 justify-start items-center'>
+            <PlayingAnimation />
+            <h1 className='text-2xl font-bold drop-shadow-lg truncate'>
+              {currentlyPlaying?.name}
+            </h1>
+          </div>
 
-        <p className='text-lg font-bold drop-shadow-lg'>
-          {currentlyPlaying?.artist}
-        </p>
+          <p className='text-lg font-bold drop-shadow-lg truncate'>
+            {currentlyPlaying?.artist}
+          </p>
+        </div>
+
+        <div className='flex flex-row w-full'>
+          <div className='flex flex-grow h-2 bg-zinc-700/30 rounded-lg overflow-hidden'>
+            <div
+              className='h-2 bg-green-500'
+              style={{
+                width: `${Math.round(
+                  (currentlyPlaying.current_progress * 100) /
+                    currentlyPlaying.duration
+                )}%`
+              }}
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
   );

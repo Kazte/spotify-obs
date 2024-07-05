@@ -5,12 +5,21 @@ import { useEffect, useState } from 'react';
 import { CurrentlyPlaying } from '@/types/types';
 import Image from 'next/image';
 import { useCookies } from 'next-client-cookies';
+import { useRouter } from 'next/navigation';
 
 export default function OverlayPage() {
   const [currentlyPlaying, setCurrentlyPlaying] =
     useState<CurrentlyPlaying | null>(null);
 
   const cookies = useCookies();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!cookies.get('access_token')) {
+      router.push('/');
+      return;
+    }
+  }, [cookies, router]);
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {
@@ -26,7 +35,9 @@ export default function OverlayPage() {
         setCurrentlyPlaying({
           name: data.item.name,
           artist: data.item.artists[0].name,
-          album_image: data.item.album.images[0].url
+          album_image: data.item.album.images[0].url,
+          current_progress: data.progress_ms,
+          duration: data.item.duration
         });
       } catch (err) {
         console.log('error:', err);
@@ -60,6 +71,24 @@ export default function OverlayPage() {
         }}
       >
         Copy to Clipboard
+      </button>
+      <button
+        className='bg-red-500 text-white p-4 rounded-lg shadow-lg'
+        onClick={async () => {
+          try {
+            const res = await fetch('/api/logout', {
+              method: 'POST'
+            });
+
+            if (res.ok) {
+              router.push('/');
+            }
+          } catch (err) {
+            console.log('error:', err);
+          }
+        }}
+      >
+        Log Out
       </button>
       <div className='flex flex-row gap-4'>
         <Image

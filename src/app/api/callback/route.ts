@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import querystring from 'querystring';
 import { redirect } from 'next/navigation';
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const cookieStore = cookies();
 
   const params = new URL(req.url);
