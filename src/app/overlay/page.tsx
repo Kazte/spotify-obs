@@ -21,6 +21,11 @@ export default function OverlayPage() {
         const response = await fetch('/api/currently-playing');
         const data = await response.json();
 
+        if (response.status === 204) {
+          setCurrentlyPlaying(null);
+          return;
+        }
+
         setCurrentlyPlaying({
           name: data.item.name,
           artist: data.item.artists[0].name,
@@ -32,6 +37,10 @@ export default function OverlayPage() {
     };
     fetchCurrentlyPlaying();
   }, []);
+
+  if (!currentlyPlaying) {
+    return <div className='text-xl font-bold'>No currently playing</div>;
+  }
 
   return (
     <>
