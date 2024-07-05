@@ -37,8 +37,6 @@ export default function NowPlayingPage() {
     }
   }, 1000);
 
-  console.log('searchParams:', searchParams.get('access_token'));
-
   useEffect(() => {
     document.body.style.background = 'transparent';
   }, []);

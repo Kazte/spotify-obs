@@ -17,8 +17,6 @@ auth_url.searchParams.append(
 );
 auth_url.searchParams.append('scope', 'user-read-currently-playing');
 
-console.log('auth_url:', auth_url.toString());
-
 export default function Home() {
   return (
     <main className='flex min-h-screen flex-col items-center justify-between p-24 bg-black'>

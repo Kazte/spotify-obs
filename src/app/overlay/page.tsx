@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { CurrentlyPlaying } from '@/types/types';
 import Image from 'next/image';
-import { cookies } from 'next/headers';
 import { useCookies } from 'next-client-cookies';
 
 export default function OverlayPage() {
@@ -12,8 +11,6 @@ export default function OverlayPage() {
     useState<CurrentlyPlaying | null>(null);
 
   const cookies = useCookies();
-
-  console.log('cookies:', cookies);
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {

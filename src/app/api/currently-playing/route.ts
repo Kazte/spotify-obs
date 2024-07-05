@@ -11,10 +11,8 @@ export async function GET(req: NextRequest) {
 
   if (params.searchParams.get('access_token')) {
     access_token = params.searchParams.get('access_token')!;
-    console.log('access_token from query');
   }
 
-  console.log('access_token:', access_token);
   try {
     const response = await fetch(
       'https://api.spotify.com/v1/me/player/currently-playing',
