@@ -48,7 +48,9 @@ export default function OverlayPage() {
         className='bg-green-500 text-white p-4 rounded-lg shadow-lg'
         onClick={async () => {
           try {
-            const overlay_url = new URL('http://localhost:3000/now-playing');
+            const overlay_url = new URL(
+              `${process.env.NEXT_PUBLIC_URL}/now-playing`
+            );
 
             const access_token = cookies.get('access_token');
 
