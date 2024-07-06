@@ -13,8 +13,6 @@ export default function PlayingWidget({ currentlyPlaying, options }: Props) {
     return null;
   }
 
-  console.log('options:', options);
-
   return (
     <div
       className={`flex flex-row gap-4 rounded-md border-[2px] bg-opacity-30 border-opacity-30 w-full p-1 max-w-[550px] items-center justify-center`}
@@ -45,7 +43,6 @@ export default function PlayingWidget({ currentlyPlaying, options }: Props) {
           )}
         </div>
       )}
-
       <div className='flex flex-col justify-center gap-2 w-full overflow-hidden'>
         <div className=''>
           <div className='flex flex-row gap-2 justify-start items-center'>
@@ -81,7 +78,8 @@ export default function PlayingWidget({ currentlyPlaying, options }: Props) {
                   style={{
                     width: `${Math.round(
                       (currentlyPlaying.current_progress * 100) /
-                        currentlyPlaying.duration
+                        (currentlyPlaying.duration ||
+                          currentlyPlaying.current_progress * 2)
                     )}%`
                   }}
                 ></div>

@@ -9,17 +9,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import {
-  basic_theme,
-  dracula_theme,
-  solarized_dark_theme,
-  solarized_light_theme
-} from '@/themes/basic-theme';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import PlayingWidget from '@/components/playing-widget';
+import { themes } from '@/themes/basic-theme';
 import { toast } from 'sonner';
 import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
@@ -29,7 +23,7 @@ export default function OverlayPage() {
     useState<CurrentlyPlaying | null>(null);
 
   const [options, setOptions] = useState<Options>({
-    theme: basic_theme,
+    theme: themes.basic,
     show_album_image: true,
     show_progress_bar: true
   });
@@ -123,7 +117,7 @@ export default function OverlayPage() {
         setOptions((prev) => {
           return {
             ...prev,
-            theme: basic_theme
+            theme: themes.basic
           };
         });
         break;
@@ -132,7 +126,7 @@ export default function OverlayPage() {
         setOptions((prev) => {
           return {
             ...prev,
-            theme: dracula_theme
+            theme: themes.dracula
           };
         });
         break;
@@ -141,7 +135,7 @@ export default function OverlayPage() {
         setOptions((prev) => {
           return {
             ...prev,
-            theme: solarized_light_theme
+            theme: themes.solarized_light
           };
         });
         break;
@@ -149,7 +143,15 @@ export default function OverlayPage() {
         setOptions((prev) => {
           return {
             ...prev,
-            theme: solarized_dark_theme
+            theme: themes.solarized_dark
+          };
+        });
+        break;
+      case 'spotify':
+        setOptions((prev) => {
+          return {
+            ...prev,
+            theme: themes.spotify
           };
         });
         break;
@@ -219,8 +221,8 @@ export default function OverlayPage() {
         </div>
       </div>
 
-      <section className='flex-grow flex flex-row p-4'>
-        <div className='flex-grow'>
+      <section className='flex-grow flex flex-row justify-between p-4'>
+        <div className='min-w-[550px]'>
           <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-2'>
@@ -241,6 +243,7 @@ export default function OverlayPage() {
                     <SelectItem value='solarized_dark'>
                       Solarized Dark
                     </SelectItem>
+                    <SelectItem value='spotify'>Spotify</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -271,7 +274,7 @@ export default function OverlayPage() {
             </div>
           </div>
         </div>
-        <div className='max-w-[400px]'>
+        <div className='w-full'>
           <PlayingWidget
             currentlyPlaying={currentlyPlaying}
             options={options}

@@ -34,8 +34,6 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
 
-    console.log('data:', data);
-
     cookieStore.set('access_token', data.access_token);
 
     return NextResponse.json({}, { status: 200 });
