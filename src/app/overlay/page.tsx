@@ -166,8 +166,8 @@ export default function OverlayPage() {
   }
 
   return (
-    <main className='min-h-screen max-w-screen  flex flex-col gap-2'>
-      <div className='flex flex-row justify-center items-center w-full px-6  border-b border-b-zinc-700'>
+    <main className='min-h-screen max-w-screen  flex flex-col gap-2 container'>
+      <nav className='flex flex-row justify-center items-center w-full px-6  border-b border-b-zinc-700'>
         <h1 className='text-4xl font-bold text-white flex-1'>
           Spotify Widget for OBS
         </h1>
@@ -219,9 +219,9 @@ export default function OverlayPage() {
             Log Out
           </Button>
         </div>
-      </div>
+      </nav>
 
-      <section className='flex-grow flex flex-row justify-between p-4'>
+      <section className='flex-grow h-full flex flex-row justify-between p-4'>
         <div className='min-w-[550px]'>
           <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
           <div className='flex flex-col gap-4'>
@@ -274,6 +274,7 @@ export default function OverlayPage() {
             </div>
           </div>
         </div>
+
         <div className='w-full'>
           <PlayingWidget
             currentlyPlaying={currentlyPlaying}
