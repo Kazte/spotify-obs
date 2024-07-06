@@ -3,6 +3,8 @@ import './globals.css';
 import { CookiesProvider } from 'next-client-cookies/server';
 import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +21,12 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <CookiesProvider>{children}</CookiesProvider>
+        <Toaster position='bottom-center' theme={'dark'} visibleToasts={1} />
+        <CookiesProvider>
+          <ThemeProvider attribute='class' defaultTheme='dark'>
+            {children}
+          </ThemeProvider>
+        </CookiesProvider>
       </body>
     </html>
   );
