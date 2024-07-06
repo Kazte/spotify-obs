@@ -4,7 +4,7 @@ import { CurrentlyPlaying, Options, Theme } from '@/types/types';
 import React, { useEffect, useState } from 'react';
 
 import PlayingWidget from '@/components/playing-widget';
-import { basic_theme } from '@/themes/basic-theme';
+import { themes } from '@/themes/basic-theme';
 import useInterval from '@/hooks/useInterval';
 import { useSearchParams } from 'next/navigation';
 
@@ -14,7 +14,7 @@ export default function NowPlayingPage() {
     useState<CurrentlyPlaying | null>(null);
 
   const [options, setOptions] = useState<Options>({
-    theme: basic_theme,
+    theme: themes.basic,
     show_album_image: true,
     show_progress_bar: true
   });
@@ -50,9 +50,7 @@ export default function NowPlayingPage() {
     }
   }, 1000);
 
-  useEffect(() => {
-    document.body.style.background = 'transparent';
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <PlayingWidget currentlyPlaying={currentlyPlaying} options={options} />
