@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
 
   const params = new URL(req.url);
 
-  const access_token = cookieStore.get('access_token')?.value;
   let refresh_token = cookieStore.get('refresh_token')?.value;
 
   if (!refresh_token) {
