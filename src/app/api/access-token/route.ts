@@ -9,7 +9,18 @@ export async function GET(req: NextRequest) {
   const params = new URL(req.url);
 
   const access_token = cookieStore.get('access_token')?.value;
-  const refresh_token = cookieStore.get('refresh_token')?.value;
+  let refresh_token = cookieStore.get('refresh_token')?.value;
+
+  if (!refresh_token) {
+    refresh_token = req.headers.get('refresh_token') as string;
+  }
+
+  if (!refresh_token) {
+    return NextResponse.json(
+      { error: 'Refresh token not found' },
+      { status: 400 }
+    );
+  }
 
   const basicAuth = Buffer.from(
     `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
@@ -32,11 +43,11 @@ export async function GET(req: NextRequest) {
   try {
     const response = await fetch(url, authOptions);
 
-    const data = await response.json();
+    const { access_token } = await response.json();
 
-    cookieStore.set('access_token', data.access_token);
+    cookieStore.set('access_token', access_token);
 
-    return NextResponse.json({}, { status: 200 });
+    return NextResponse.json({ access_token }, { status: 200 });
   } catch (err) {
     console.log('error access token:', err);
   }
