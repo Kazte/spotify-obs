@@ -4,9 +4,11 @@ export type CurrentlyPlaying = {
   album_image: string;
   current_progress: number;
   duration: number;
+  is_playing: boolean;
 };
 
 export type Theme = {
+  name: string;
   text_color: string;
   background_color: string;
   border_color: string;
