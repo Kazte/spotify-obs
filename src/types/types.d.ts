@@ -16,4 +16,5 @@ export type Options = {
   theme: Theme;
   show_album_image: boolean;
   show_progress_bar: boolean;
+  show_placeholder: boolean;
 };

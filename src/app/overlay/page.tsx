@@ -12,20 +12,33 @@ import {
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/loader';
 import PlayingWidget from '@/components/playing-widget';
+import { Switch } from 'ktools-r';
+import { Switch as SwitchCompo } from '@/components/ui/switch';
 import { themes } from '@/themes/basic-theme';
 import { toast } from 'sonner';
 import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
 
+const APP_STATE = {
+  LOADING: 'LOADING',
+  ERROR: 'ERROR',
+  SUCCESS: 'SUCCESS',
+  NO_CONTENT: 'NO_CONTENT'
+};
+
 export default function OverlayPage() {
   const [currentlyPlaying, setCurrentlyPlaying] =
     useState<CurrentlyPlaying | null>(null);
 
+  const [appState, setAppState] = useState(APP_STATE.LOADING);
+
   const [options, setOptions] = useState<Options>({
     theme: themes.basic,
     show_album_image: true,
-    show_progress_bar: true
+    show_progress_bar: true,
+    show_placeholder: true
   });
 
   const cookies = useCookies();
@@ -42,12 +55,14 @@ export default function OverlayPage() {
     const fetchCurrentlyPlaying = async () => {
       try {
         const response = await fetch('/api/currently-playing');
-        const data = await response.json();
 
         if (response.status === 204) {
           setCurrentlyPlaying(null);
+          setAppState(APP_STATE.NO_CONTENT);
           return;
         }
+
+        const data = await response.json();
 
         if (data.error) {
           if (data.error.status === 401) {
@@ -59,6 +74,7 @@ export default function OverlayPage() {
 
               if (response.status === 204) {
                 setCurrentlyPlaying(null);
+                setAppState(APP_STATE.NO_CONTENT);
                 return;
               }
 
@@ -69,7 +85,16 @@ export default function OverlayPage() {
                 current_progress: data.progress_ms,
                 duration: data.item.duration
               });
+
+              setAppState(APP_STATE.SUCCESS);
+              return;
+            } else {
+              setAppState(APP_STATE.ERROR);
+              return;
             }
+          } else {
+            setAppState(APP_STATE.ERROR);
+            return;
           }
         }
 
@@ -80,36 +105,15 @@ export default function OverlayPage() {
           current_progress: data.progress_ms,
           duration: data.item.duration
         });
+
+        setAppState(APP_STATE.SUCCESS);
       } catch (err) {
         console.log('error trying fetch:', err);
+        setAppState(APP_STATE.ERROR);
       }
     };
     fetchCurrentlyPlaying();
   }, []);
-
-  const handleOptionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    let newOptions: Options;
-
-    switch (e.target.type) {
-      case 'checkbox':
-        newOptions = {
-          ...options,
-          [name]: e.target.checked
-        };
-        break;
-
-      default:
-        newOptions = {
-          ...options,
-          [name]: value
-        };
-        break;
-    }
-
-    setOptions(newOptions);
-  };
 
   const handleThemeChange = (value: string) => {
     switch (value) {
@@ -161,127 +165,199 @@ export default function OverlayPage() {
     }
   };
 
-  if (!currentlyPlaying) {
-    return <div className='text-xl font-bold'>No currently playing</div>;
-  }
-
   return (
     <main className='min-h-screen max-w-screen  flex flex-col gap-2 container'>
-      <nav className='flex flex-row justify-center items-center w-full px-6  border-b border-b-zinc-700'>
-        <h1 className='text-4xl font-bold text-white flex-1'>
-          Spotify Widget for OBS
-        </h1>
-        <div className='flex flex-row gap-2 justify-end p-2  self-end place-self-end justify-self-end'>
-          <Button
-            onClick={async () => {
-              try {
-                const overlay_url = new URL(
-                  `${process.env.NEXT_PUBLIC_URL}/now-playing`
-                );
+      <Loader loaded={appState !== APP_STATE.LOADING} message='Loading...'>
+        <Switch>
+          <Switch.Case condition={appState === APP_STATE.ERROR}>
+            <div className='flex flex-col justify-center items-center w-full h-full flex-grow'>
+              <span className='text-2xl font-bold text-white'>
+                Error fetching data
+              </span>
+            </div>
+          </Switch.Case>
 
-                const access_token = cookies.get('access_token');
-
-                overlay_url.searchParams.append(
-                  'access_token',
-                  access_token || ''
-                );
-
-                overlay_url.searchParams.append(
-                  'theme',
-                  btoa(JSON.stringify(options))
-                );
-
-                await navigator.clipboard.writeText(overlay_url.toString());
-
-                toast.success('Copied to clipboard');
-              } catch (err) {
-                console.log('error:', err);
-              }
-            }}
+          <Switch.Case
+            condition={
+              appState === APP_STATE.SUCCESS ||
+              appState === APP_STATE.NO_CONTENT
+            }
           >
-            Copy to Clipboard
-          </Button>
-          <Button
-            variant='destructive'
-            onClick={async () => {
-              try {
-                const res = await fetch('/api/logout', {
-                  method: 'POST'
-                });
-                if (res.ok) {
-                  router.push('/');
-                }
-              } catch (err) {
-                console.log('error:', err);
-              }
-            }}
-          >
-            Log Out
-          </Button>
-        </div>
-      </nav>
+            <nav className='flex flex-row justify-center items-center w-full px-6  border-b border-b-zinc-700'>
+              <h1 className='text-4xl font-bold text-white flex-1'>
+                Spotify Widget for OBS
+              </h1>
+              <div className='flex flex-row gap-2 justify-end p-2  self-end place-self-end justify-self-end'>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const overlay_url = new URL(
+                        `${process.env.NEXT_PUBLIC_URL}/now-playing`
+                      );
 
-      <section className='flex-grow h-full flex flex-row justify-between p-4'>
-        <div className='min-w-[550px]'>
-          <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
-          <div className='flex flex-col gap-4'>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor='theme_selector' className='text-lg'>
-                Select Theme:
-              </label>
-              <Select onValueChange={handleThemeChange}>
-                <SelectTrigger className='w-[280px]'>
-                  <SelectValue placeholder='Select theme' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value='basic'>Basic</SelectItem>
-                    <SelectItem value='dracula'>Dracula</SelectItem>
-                    <SelectItem value='solarized_light'>
-                      Solarized Light
-                    </SelectItem>
-                    <SelectItem value='solarized_dark'>
-                      Solarized Dark
-                    </SelectItem>
-                    <SelectItem value='spotify'>Spotify</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+                      const access_token = cookies.get('access_token');
 
-            <div className='flex flex-row gap-2'>
-              <label htmlFor='show_album_image' className='text-lg'>
-                Show Image:
-              </label>
-              <input
-                name='show_album_image'
-                type='checkbox'
-                defaultChecked={options.show_album_image}
-                onChange={handleOptionsChange}
-              />
-            </div>
+                      overlay_url.searchParams.append(
+                        'access_token',
+                        access_token || ''
+                      );
 
-            <div className='flex flex-row gap-2'>
-              <label htmlFor='show_progress_bar' className='text-lg'>
-                Show Progress:
-              </label>
-              <input
-                name='show_progress_bar'
-                type='checkbox'
-                defaultChecked={options.show_progress_bar}
-                onChange={handleOptionsChange}
-              />
-            </div>
-          </div>
-        </div>
+                      overlay_url.searchParams.append(
+                        'theme',
+                        btoa(JSON.stringify(options))
+                      );
 
-        <div className='w-full'>
-          <PlayingWidget
-            currentlyPlaying={currentlyPlaying}
-            options={options}
-          />
-        </div>
-      </section>
+                      await navigator.clipboard.writeText(
+                        overlay_url.toString()
+                      );
+
+                      toast.success('Copied to clipboard');
+                    } catch (err) {
+                      console.log('error:', err);
+                    }
+                  }}
+                >
+                  Copy to Clipboard
+                </Button>
+                <Button
+                  variant='destructive'
+                  onClick={async () => {
+                    try {
+                      const res = await fetch('/api/logout', {
+                        method: 'POST'
+                      });
+                      if (res.ok) {
+                        router.push('/');
+                      }
+                    } catch (err) {
+                      console.log('error:', err);
+                    }
+                  }}
+                >
+                  Log Out
+                </Button>
+              </div>
+            </nav>
+
+            <section className='flex-grow h-full flex flex-row justify-between p-4'>
+              <div className='min-w-[550px]'>
+                <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
+                <div className='flex flex-col gap-4'>
+                  <div className='flex flex-col gap-2'>
+                    <label htmlFor='theme_selector' className='text-lg'>
+                      Select Theme:
+                    </label>
+                    <Select onValueChange={handleThemeChange}>
+                      <SelectTrigger className='w-[280px]'>
+                        <SelectValue placeholder='Select theme' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value='basic'>Basic</SelectItem>
+                          <SelectItem value='dracula'>Dracula</SelectItem>
+                          <SelectItem value='solarized_light'>
+                            Solarized Light
+                          </SelectItem>
+                          <SelectItem value='solarized_dark'>
+                            Solarized Dark
+                          </SelectItem>
+                          <SelectItem value='spotify'>Spotify</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className='flex flex-row gap-2 justify-start items-center'>
+                    <label htmlFor='show_album_image' className='text-lg'>
+                      Show Image:
+                    </label>
+                    <SwitchCompo
+                      name='show_album_image'
+                      defaultChecked={options.show_album_image}
+                      onCheckedChange={(set) => {
+                        setOptions((prev) => {
+                          return {
+                            ...prev,
+                            show_album_image: set
+                          };
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className='flex flex-row gap-2 justify-start items-center'>
+                    <label htmlFor='show_progress_bar' className='text-lg'>
+                      Show Progress:
+                    </label>
+                    <SwitchCompo
+                      name='show_progress_bar'
+                      defaultChecked={options.show_progress_bar}
+                      onCheckedChange={(set) => {
+                        setOptions((prev) => {
+                          return {
+                            ...prev,
+                            show_progress_bar: set
+                          };
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className='flex flex-row gap-2 justify-start items-center'>
+                    <label htmlFor='show_placeholder' className='text-lg'>
+                      Show Placeholder:
+                    </label>
+                    <SwitchCompo
+                      name='show_placeholder'
+                      defaultChecked={options.show_placeholder}
+                      onCheckedChange={(set) => {
+                        setOptions((prev) => {
+                          return {
+                            ...prev,
+                            show_placeholder: set
+                          };
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className='w-full'>
+                <Switch>
+                  <Switch.Case condition={appState === APP_STATE.NO_CONTENT}>
+                    <PlayingWidget
+                      currentlyPlaying={{
+                        name: 'No currently playing',
+                        artist: 'No artist',
+                        album_image: '/placeholder.png',
+                        current_progress: 50,
+                        duration: 0
+                      }}
+                      options={options}
+                    />
+                    <p className='text-white'>
+                      No currently playing but you can still copy the overlay
+                      link and change the options
+                    </p>
+                    {!options.show_placeholder && (
+                      <p className='text-white'>
+                        Placeholder is disabled, this is only to show the widget
+                      </p>
+                    )}
+                  </Switch.Case>
+                  <Switch.Default>
+                    <PlayingWidget
+                      currentlyPlaying={currentlyPlaying}
+                      options={options}
+                    />
+                  </Switch.Default>
+                </Switch>
+              </div>
+            </section>
+          </Switch.Case>
+        </Switch>
+      </Loader>
     </main>
   );
 }

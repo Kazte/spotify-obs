@@ -16,7 +16,8 @@ export default function NowPlayingPage() {
   const [options, setOptions] = useState<Options>({
     theme: themes.basic,
     show_album_image: true,
-    show_progress_bar: true
+    show_progress_bar: true,
+    show_placeholder: true
   });
 
   useInterval(async () => {
@@ -29,12 +30,6 @@ export default function NowPlayingPage() {
       if (response.status === 204) {
         setCurrentlyPlaying(null);
         return;
-      }
-
-      if (searchParams.get('theme')) {
-        const decodedTheme = atob(searchParams.get('theme') as string);
-
-        setOptions(JSON.parse(decodedTheme));
       }
 
       const data = await response.json();
@@ -50,9 +45,34 @@ export default function NowPlayingPage() {
     }
   }, 1000);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (searchParams.get('theme')) {
+      const decodedTheme = atob(searchParams.get('theme') as string);
+
+      setOptions(JSON.parse(decodedTheme));
+    }
+  }, [searchParams]);
 
   return (
-    <PlayingWidget currentlyPlaying={currentlyPlaying} options={options} />
+    <>
+      {currentlyPlaying ? (
+        <PlayingWidget currentlyPlaying={currentlyPlaying} options={options} />
+      ) : (
+        <>
+          {options.show_placeholder && (
+            <PlayingWidget
+              currentlyPlaying={{
+                name: 'No currently playing',
+                artist: 'No artist',
+                album_image: '/placeholder.png',
+                current_progress: 1,
+                duration: 1
+              }}
+              options={options}
+            />
+          )}
+        </>
+      )}
+    </>
   );
 }

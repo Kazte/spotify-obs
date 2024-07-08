@@ -24,19 +24,14 @@ export async function GET(req: NextRequest) {
     );
 
     if (response.status === 204) {
-      return NextResponse.json({ message: 'No content' }, { status: 204 });
+      return new Response(null, { status: 204 });
     }
 
     const data = await response.json();
 
-    return NextResponse.json(data, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.log('error:', err);
+    console.log('error curr playing:', err);
     return NextResponse.json({ error: 'error' }, { status: 500 });
   }
 }
