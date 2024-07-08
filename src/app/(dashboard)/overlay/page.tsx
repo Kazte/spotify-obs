@@ -114,7 +114,7 @@ export default function OverlayPage() {
       }
     };
     fetchCurrentlyPlaying();
-  }, []);
+  }, [router]);
 
   const handleThemeChange = (value: string) => {
     switch (value) {
