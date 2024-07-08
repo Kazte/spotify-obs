@@ -18,6 +18,18 @@ const config = {
       }
     },
     extend: {
+      backgroundImage: {
+        'placeholder-background': "url('/background.webp')"
+      },
+      backgroundSize: {
+        cover: 'cover'
+      },
+      backgroundRepeat: {
+        'no-repeat': 'no-repeat'
+      },
+      backgroundPosition: {
+        center: 'center center'
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -84,6 +96,7 @@ const config = {
       }
     }
   },
+  important: true,
   plugins: [require('tailwindcss-animate')]
 } satisfies Config;
 
