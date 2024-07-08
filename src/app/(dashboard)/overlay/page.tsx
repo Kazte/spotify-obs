@@ -67,6 +67,7 @@ export default function OverlayPage() {
         if (data.error) {
           if (data.error.status === 401) {
             const res = await fetch('/api/access-token');
+            router.refresh();
 
             if (res.ok) {
               const response = await fetch('/api/currently-playing');
@@ -294,7 +295,7 @@ export default function OverlayPage() {
                 Copy to Clipboard
               </Button>
             </div>
-            <div className='flex-grow flex justify-center items-start'>
+            <div className='flex-grow flex flex-col justify-start items-center'>
               <div className='bg-placeholder-background bg-cover bg-no-repeat bg-center flex justify-center items-center w-full md:w-[550px] h-fit p-10'>
                 <Switch>
                   <Switch.Case condition={appState === APP_STATE.NO_CONTENT}>
@@ -309,15 +310,6 @@ export default function OverlayPage() {
                       }}
                       options={options}
                     />
-                    <p className='text-white'>
-                      No currently playing but you can still copy the overlay
-                      link and change the options
-                    </p>
-                    {!options.show_placeholder && (
-                      <p className='text-white'>
-                        Placeholder is disabled, this is only to show the widget
-                      </p>
-                    )}
                   </Switch.Case>
                   <Switch.Default>
                     <PlayingWidget
@@ -328,6 +320,15 @@ export default function OverlayPage() {
                   </Switch.Default>
                 </Switch>
               </div>
+              <p className='text-white w-full md:w-[550px]'>
+                No currently playing but you can still copy the overlay link and
+                change the options
+              </p>
+              {!options.show_placeholder && (
+                <p className='text-white w-full md:w-[550px]'>
+                  Placeholder is disabled, this is only to show the widget
+                </p>
+              )}
             </div>
           </section>
         </Switch.Case>
