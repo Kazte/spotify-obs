@@ -6,16 +6,21 @@ import PlayingAnimation from './playing-animation';
 interface Props {
   currentlyPlaying: CurrentlyPlaying | null;
   options: Options;
+  className?: string;
 }
 
-export default function PlayingWidget({ currentlyPlaying, options }: Props) {
+export default function PlayingWidget({
+  currentlyPlaying,
+  options,
+  className
+}: Props) {
   if (!Boolean(currentlyPlaying)) {
     return null;
   }
 
   return (
     <div
-      className={`flex flex-row gap-4 rounded-md border-[2px] bg-opacity-30 border-opacity-30 w-full p-1 max-w-[550px] items-center justify-center`}
+      className={`flex flex-row gap-4 rounded-md border-[2px] bg-opacity-30 border-opacity-30 w-full p-1 min-w-[250px] max-w-[550px] items-center justify-center ${className}`}
       style={{
         backgroundColor: options.theme.background_color + '80',
         borderColor: options.theme.border_color + '80',
@@ -26,6 +31,7 @@ export default function PlayingWidget({ currentlyPlaying, options }: Props) {
         <div className='relative aspect-square h-20'>
           {currentlyPlaying ? (
             <Image
+              priority
               src={currentlyPlaying?.album_image}
               fill={true}
               alt='album image'
@@ -34,6 +40,7 @@ export default function PlayingWidget({ currentlyPlaying, options }: Props) {
             />
           ) : (
             <Image
+              priority
               src={'/placeholder.png'}
               fill={true}
               alt='album image'
