@@ -13,19 +13,15 @@ export default function NowPlayingPage() {
   const [currentlyPlaying, setCurrentlyPlaying] =
     useState<CurrentlyPlaying | null>(null);
 
-  const [options, setOptions] = useState<Options>({
-    theme: themes.basic,
-    show_album_image: true,
-    show_progress_bar: true,
-    show_placeholder: true
-  });
+  const [options, setOptions] = useState<Options>();
 
   useInterval(async () => {
     try {
-      const response = await fetch(
-        '/api/currently-playing?access_token=' +
-          searchParams.get('access_token')
-      );
+      const response = await fetch('/api/currently-playing', {
+        headers: {
+          access_token: searchParams.get('access_token') as string
+        }
+      });
 
       if (response.status === 204) {
         setCurrentlyPlaying(null);
@@ -38,7 +34,8 @@ export default function NowPlayingPage() {
         artist: data.item.artists.map((artist: any) => artist.name).join(', '),
         album_image: data.item.album.images[0].url,
         current_progress: data.progress_ms,
-        duration: data.item.duration_ms
+        duration: data.item.duration_ms,
+        is_playing: data.is_playing
       });
     } catch (err) {
       console.log('error:', err);
@@ -53,9 +50,13 @@ export default function NowPlayingPage() {
     }
   }, [searchParams]);
 
+  if (!options) {
+    return null;
+  }
+
   return (
     <>
-      {currentlyPlaying ? (
+      {currentlyPlaying && currentlyPlaying.is_playing ? (
         <PlayingWidget currentlyPlaying={currentlyPlaying} options={options} />
       ) : (
         <>
@@ -66,7 +67,8 @@ export default function NowPlayingPage() {
                 artist: 'No artist',
                 album_image: '/placeholder.png',
                 current_progress: 1,
-                duration: 1
+                duration: 1,
+                is_playing: false
               }}
               options={options}
             />
