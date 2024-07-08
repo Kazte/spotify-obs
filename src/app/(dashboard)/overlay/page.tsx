@@ -16,9 +16,11 @@ import Loader from '@/components/loader';
 import PlayingWidget from '@/components/playing-widget';
 import { Switch } from 'ktools-r';
 import { Switch as SwitchCompo } from '@/components/ui/switch';
+import { capitalizeEveryWord } from '@/lib/capitalize-word';
 import { themes } from '@/themes/basic-theme';
 import { toast } from 'sonner';
 import { useCookies } from 'next-client-cookies';
+import useOptions from '@/hooks/useOptions';
 import { useRouter } from 'next/navigation';
 
 const APP_STATE = {
@@ -34,15 +36,9 @@ export default function OverlayPage() {
 
   const [appState, setAppState] = useState(APP_STATE.LOADING);
 
-  const [options, setOptions] = useState<Options>({
-    theme: themes.basic,
-    show_album_image: true,
-    show_progress_bar: true,
-    show_placeholder: true
-  });
-
   const cookies = useCookies();
   const router = useRouter();
+  const [options, setOptions] = useOptions();
 
   useEffect(() => {
     if (!cookies.get('access_token')) {
@@ -84,7 +80,8 @@ export default function OverlayPage() {
                 artist: data.item.artists[0].name,
                 album_image: data.item.album.images[0].url,
                 current_progress: data.progress_ms,
-                duration: data.item.duration
+                duration: data.item.duration,
+                is_playing: data.is_playing
               });
 
               setAppState(APP_STATE.SUCCESS);
@@ -104,7 +101,8 @@ export default function OverlayPage() {
           artist: data.item.artists[0].name,
           album_image: data.item.album.images[0].url,
           current_progress: data.progress_ms,
-          duration: data.item.duration
+          duration: data.item.duration,
+          is_playing: data.is_playing
         });
 
         setAppState(APP_STATE.SUCCESS);
@@ -117,53 +115,12 @@ export default function OverlayPage() {
   }, [router]);
 
   const handleThemeChange = (value: string) => {
-    switch (value) {
-      case 'basic':
-        setOptions((prev) => {
-          return {
-            ...prev,
-            theme: themes.basic
-          };
-        });
-        break;
+    const newOptions = {
+      ...options,
+      theme: themes[value as keyof typeof themes]
+    };
 
-      case 'dracula':
-        setOptions((prev) => {
-          return {
-            ...prev,
-            theme: themes.dracula
-          };
-        });
-        break;
-
-      case 'solarized_light':
-        setOptions((prev) => {
-          return {
-            ...prev,
-            theme: themes.solarized_light
-          };
-        });
-        break;
-      case 'solarized_dark':
-        setOptions((prev) => {
-          return {
-            ...prev,
-            theme: themes.solarized_dark
-          };
-        });
-        break;
-      case 'spotify':
-        setOptions((prev) => {
-          return {
-            ...prev,
-            theme: themes.spotify
-          };
-        });
-        break;
-
-      default:
-        break;
-    }
+    setOptions(newOptions);
   };
 
   return (
@@ -190,22 +147,21 @@ export default function OverlayPage() {
                   <label htmlFor='theme_selector' className='text-lg'>
                     Select Theme:
                   </label>
-                  <Select onValueChange={handleThemeChange}>
+                  <Select
+                    onValueChange={handleThemeChange}
+                    defaultValue={options.theme.name}
+                  >
                     <SelectTrigger className='md:w-[280px] w-full'>
                       <SelectValue placeholder='Select theme' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value='basic'>Basic</SelectItem>
-                        <SelectItem value='dracula'>Dracula</SelectItem>
-                        <SelectItem value='solarized_light'>
-                          Solarized Light
-                        </SelectItem>
-                        <SelectItem value='solarized_dark'>
-                          Solarized Dark
-                        </SelectItem>
-                        <SelectItem value='spotify'>Spotify</SelectItem>
-                      </SelectGroup>
+                      {Object.keys(themes).map((key) => {
+                        return (
+                          <SelectItem key={key} value={key}>
+                            {capitalizeEveryWord(key.split('_').join(' '))}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -218,12 +174,12 @@ export default function OverlayPage() {
                     name='show_album_image'
                     defaultChecked={options.show_album_image}
                     onCheckedChange={(set) => {
-                      setOptions((prev) => {
-                        return {
-                          ...prev,
-                          show_album_image: set
-                        };
-                      });
+                      const newOptions = {
+                        ...options,
+                        show_album_image: set
+                      };
+
+                      setOptions(newOptions);
                     }}
                   />
                 </div>
@@ -236,12 +192,12 @@ export default function OverlayPage() {
                     name='show_progress_bar'
                     defaultChecked={options.show_progress_bar}
                     onCheckedChange={(set) => {
-                      setOptions((prev) => {
-                        return {
-                          ...prev,
-                          show_progress_bar: set
-                        };
-                      });
+                      const newOptions = {
+                        ...options,
+                        show_progress_bar: set
+                      };
+
+                      setOptions(newOptions);
                     }}
                   />
                 </div>
@@ -254,18 +210,17 @@ export default function OverlayPage() {
                     name='show_placeholder'
                     defaultChecked={options.show_placeholder}
                     onCheckedChange={(set) => {
-                      setOptions((prev) => {
-                        return {
-                          ...prev,
-                          show_placeholder: set
-                        };
-                      });
+                      const newOptions = {
+                        ...options,
+                        show_placeholder: set
+                      };
+                      setOptions(newOptions);
                     }}
                   />
                 </div>
               </div>
               <Button
-                className='w-full'
+                className='w-full mt-4'
                 onClick={async () => {
                   try {
                     const overlay_url = new URL(
@@ -306,7 +261,8 @@ export default function OverlayPage() {
                         artist: 'No artist',
                         album_image: '/placeholder.png',
                         current_progress: 50,
-                        duration: 0
+                        duration: 0,
+                        is_playing: false
                       }}
                       options={options}
                     />
