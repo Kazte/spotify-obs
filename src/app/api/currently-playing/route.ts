@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   let access_token = cookieStore.get('access_token')?.value;
 
   if (params.searchParams.get('access_token')) {
-    access_token = params.searchParams.get('access_token')!;
+    access_token = req.headers.get('access_token') as string;
   }
 
   try {
