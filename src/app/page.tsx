@@ -37,7 +37,7 @@ export default function Home() {
   }, [cookies, router]);
 
   return (
-    <main className='flex min-h-screen flex-col items-center gap-10'>
+    <main className='flex min-h-dvh flex-col items-center gap-10'>
       <Loader loaded={!loading} message='Loading...'>
         <h1 className='text-4xl font-bold text-white mt-5'>
           Spotify Widget for OBS

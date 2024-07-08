@@ -13,7 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className='min-h-screen flex flex-col'>
+    <main className='min-h-dvh flex flex-col'>
       <Navbar />
       <main className='flex-grow flex flex-col gap-2 container'>
         {children}
