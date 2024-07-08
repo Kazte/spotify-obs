@@ -5,7 +5,7 @@ import PlayingAnimation from './playing-animation';
 
 interface Props {
   currentlyPlaying: CurrentlyPlaying | null;
-  options: Options;
+  options?: Options;
   className?: string;
 }
 
@@ -15,6 +15,10 @@ export default function PlayingWidget({
   className
 }: Props) {
   if (!Boolean(currentlyPlaying)) {
+    return null;
+  }
+
+  if (!options) {
     return null;
   }
 
