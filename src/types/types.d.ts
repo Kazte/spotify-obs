@@ -18,4 +18,5 @@ export type Options = {
   theme: Theme;
   show_album_image: boolean;
   show_progress_bar: boolean;
+  custom_themes_urls?: string[];
 };

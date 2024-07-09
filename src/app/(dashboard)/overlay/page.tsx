@@ -9,14 +9,18 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import Loader from '@/components/loader';
 import PlayingWidget from '@/components/playing-widget';
+import { SelectLabel } from '@radix-ui/react-select';
 import { Switch } from 'ktools-r';
 import { Switch as SwitchCompo } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { capitalizeEveryWord } from '@/lib/capitalize-word';
+import { checkThemeValidation } from '@/lib/check-theme';
 import { themes } from '@/themes/basic-theme';
 import { toast } from 'sonner';
 import { useCookies } from 'next-client-cookies';
@@ -39,6 +43,7 @@ export default function OverlayPage() {
   const cookies = useCookies();
   const router = useRouter();
   const [options, setOptions] = useOptions();
+  const [customThemes, setCustomThemes] = useState<Theme[]>([]);
 
   useEffect(() => {
     if (!cookies.get('access_token')) {
@@ -104,16 +109,82 @@ export default function OverlayPage() {
         setAppState(APP_STATE.ERROR);
       }
     };
+
     fetchCurrentlyPlaying();
   }, [router]);
 
+  useEffect(() => {
+    if (options.custom_themes_urls && options.custom_themes_urls.length > 0) {
+      const themesPromises = options.custom_themes_urls.map((url) =>
+        checkThemeValidation(url)
+      );
+
+      Promise.all(themesPromises).then((themes) => {
+        const newCustomThemes = themes
+          .filter(([error]) => !error)
+          .map(([, theme]) => theme as Theme);
+
+        setCustomThemes(newCustomThemes);
+      });
+    }
+  }, [options.custom_themes_urls]);
+
   const handleThemeChange = (value: string) => {
-    const newOptions = {
-      ...options,
-      theme: themes[value as keyof typeof themes]
-    };
+    let newOptions: Options;
+
+    if (Object.keys(themes).includes(value)) {
+      newOptions = {
+        ...options,
+        theme: themes[value as keyof typeof themes]
+      };
+    } else {
+      const customTheme = customThemes.find((theme) => theme.name === value);
+
+      if (!customTheme) {
+        return;
+      }
+
+      newOptions = {
+        ...options,
+        theme: customTheme
+      };
+    }
 
     setOptions(newOptions);
+  };
+
+  const handleCustomThemesChange = async (
+    e: React.FocusEvent<HTMLTextAreaElement>
+  ) => {
+    try {
+      const value = e.target.value;
+
+      const urls = value.split('\n').filter((url) => url !== '');
+
+      // clean repeated urls
+      const uniqueUrls = urls.filter(
+        (url, index) => urls.indexOf(url) === index
+      );
+
+      const themesPromises = uniqueUrls.map((url) => checkThemeValidation(url));
+
+      const themes = await Promise.all(themesPromises);
+
+      const newCustomThemes = themes
+        .filter(([error]) => !error)
+        .map(([, theme]) => theme as Theme);
+
+      setCustomThemes(newCustomThemes);
+
+      const newOptions = {
+        ...options,
+        custom_themes_urls: uniqueUrls
+      };
+
+      setOptions(newOptions);
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -137,9 +208,9 @@ export default function OverlayPage() {
               <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
               <div className='flex flex-col gap-4'>
                 <div className='flex flex-col gap-2'>
-                  <label htmlFor='theme_selector' className='text-lg'>
+                  <Label htmlFor='theme_selector' className='text-lg'>
                     Select Theme:
-                  </label>
+                  </Label>
                   <Select
                     onValueChange={handleThemeChange}
                     defaultValue={options.theme.name}
@@ -148,21 +219,36 @@ export default function OverlayPage() {
                       <SelectValue placeholder='Select theme' />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.keys(themes).map((key) => {
-                        return (
-                          <SelectItem key={key} value={key}>
-                            {capitalizeEveryWord(key.split('_').join(' '))}
-                          </SelectItem>
-                        );
-                      })}
+                      <SelectGroup>
+                        <SelectLabel>Basic Themes</SelectLabel>
+                        {Object.keys(themes).map((key) => {
+                          return (
+                            <SelectItem key={key} value={key}>
+                              {capitalizeEveryWord(key.split('_').join(' '))}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectGroup>
+                      {customThemes.length > 0 && (
+                        <SelectGroup>
+                          <SelectLabel>Custom Themes</SelectLabel>
+                          {customThemes.map((theme, index) => {
+                            return (
+                              <SelectItem key={index} value={theme.name}>
+                                {capitalizeEveryWord(theme.name)}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className='flex flex-row gap-2 justify-start items-center'>
-                  <label htmlFor='show_album_image' className='text-lg'>
+                  <Label htmlFor='show_album_image' className='text-lg'>
                     Show Image:
-                  </label>
+                  </Label>
                   <SwitchCompo
                     name='show_album_image'
                     defaultChecked={options.show_album_image}
@@ -178,9 +264,9 @@ export default function OverlayPage() {
                 </div>
 
                 <div className='flex flex-row gap-2 justify-start items-center'>
-                  <label htmlFor='show_progress_bar' className='text-lg'>
+                  <Label htmlFor='show_progress_bar' className='text-lg'>
                     Show Progress:
-                  </label>
+                  </Label>
                   <SwitchCompo
                     name='show_progress_bar'
                     defaultChecked={options.show_progress_bar}
@@ -195,6 +281,27 @@ export default function OverlayPage() {
                   />
                 </div>
               </div>
+
+              <div className='mt-4'>
+                <Label htmlFor='custom_themes_urls' className='text-lg'>
+                  Custom Themes URLs:
+                </Label>
+                <Textarea
+                  onBlur={handleCustomThemesChange}
+                  name='custom_themes_urls'
+                  className='resize-none h-24 text-xs overflow-auto whitespace-nowrap p-1'
+                  defaultValue={
+                    options.custom_themes_urls
+                      ? options.custom_themes_urls.join('\n')
+                      : ''
+                  }
+                />
+                <p className='text-sm text-muted-foreground'>
+                  One link per line <br />
+                  Make sure to use direct links to files (raw css)
+                </p>
+              </div>
+
               <Button
                 className='w-full mt-4'
                 onClick={async () => {
