@@ -27,6 +27,10 @@ export async function GET(req: NextRequest) {
       return new Response(null, { status: 204 });
     }
 
+    if (response.status === 401) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 200 });
+    }
+
     const data = await response.json();
 
     return NextResponse.json(data, { status: 200 });

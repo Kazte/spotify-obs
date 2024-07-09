@@ -60,54 +60,37 @@ export default function OverlayPage() {
 
         const data = await response.json();
 
-        if (data.error) {
-          if (data.error.status === 401) {
-            const res = await fetch('/api/access-token');
-            router.refresh();
+        if (data.error === 'unauthorized') {
+          const res = await fetch('/api/access-token');
 
-            if (res.ok) {
-              const response = await fetch('/api/currently-playing');
-              const data = await response.json();
+          if (res.ok) {
+            const response = await fetch('/api/currently-playing');
 
-              if (response.status === 204) {
-                setCurrentlyPlaying(null);
-                setAppState(APP_STATE.NO_CONTENT);
-                return;
-              }
-
-              setCurrentlyPlaying({
-                name: data.item.name,
-                artist: data.item.artists[0].name,
-                album_image: data.item.album.images[0].url,
-                current_progress: data.progress_ms,
-                duration: data.item.duration,
-                is_playing: data.is_playing
-              });
-
-              setAppState(APP_STATE.SUCCESS);
-              return;
-            } else {
-              setAppState(APP_STATE.ERROR);
+            if (response.status === 204) {
+              setCurrentlyPlaying(null);
+              setAppState(APP_STATE.NO_CONTENT);
               return;
             }
+
+            const data = await response.json();
+
+            setCurrentlyPlaying({
+              name: data.item.name,
+              artist: data.item.artists[0].name,
+              album_image: data.item.album.images[0].url,
+              current_progress: data.progress_ms,
+              duration: data.item.duration,
+              is_playing: data.is_playing
+            });
+
+            setAppState(APP_STATE.SUCCESS);
+            return;
           } else {
             setAppState(APP_STATE.ERROR);
             return;
           }
         }
-
-        setCurrentlyPlaying({
-          name: data.item.name,
-          artist: data.item.artists[0].name,
-          album_image: data.item.album.images[0].url,
-          current_progress: data.progress_ms,
-          duration: data.item.duration,
-          is_playing: data.is_playing
-        });
-
-        setAppState(APP_STATE.SUCCESS);
       } catch (err) {
-        console.log('error trying fetch:', err);
         setAppState(APP_STATE.ERROR);
       }
     };
@@ -243,7 +226,7 @@ export default function OverlayPage() {
 
                     toast.success('Copied to clipboard');
                   } catch (err) {
-                    console.log('error:', err);
+                    toast.error('Error copying to clipboard');
                   }
                 }}
               >
