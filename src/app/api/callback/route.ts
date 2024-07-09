@@ -43,10 +43,4 @@ export async function GET(req: NextRequest) {
     console.log('error:', err);
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/error`);
   }
-
-  // console.log('code:', params.code);
-
-  // redirect();
-
-  // return NextResponse.json({ code }, { status: 200, headers: { 'Content-Type': 'application/json', 'Set-Cookie': cookieStore.toHeader() } });
 }
