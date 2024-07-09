@@ -90,6 +90,16 @@ export default function OverlayPage() {
             return;
           }
         }
+        setAppState(APP_STATE.SUCCESS);
+
+        setCurrentlyPlaying({
+          name: data.item.name,
+          artist: data.item.artists[0].name,
+          album_image: data.item.album.images[0].url,
+          current_progress: data.progress_ms,
+          duration: data.item.duration,
+          is_playing: data.is_playing
+        });
       } catch (err) {
         setAppState(APP_STATE.ERROR);
       }

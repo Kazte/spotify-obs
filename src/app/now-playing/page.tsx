@@ -29,6 +29,30 @@ export default function NowPlayingPage() {
       }
 
       const data = await response.json();
+
+      if (data.error === 'unauthorized') {
+        const res = await fetch('/api/access-token');
+        if (res.ok) {
+          const response = await fetch('/api/currently-playing');
+          if (response.status === 204) {
+            setCurrentlyPlaying(null);
+            return;
+          }
+
+          const data = await response.json();
+
+          setCurrentlyPlaying({
+            name: data.item.name,
+            artist: data.item.artists[0].name,
+            album_image: data.item.album.images[0].url,
+            current_progress: data.progress_ms,
+            duration: data.item.duration,
+            is_playing: data.is_playing
+          });
+          return;
+        }
+      }
+
       setCurrentlyPlaying({
         name: data.item.name,
         artist: data.item.artists.map((artist: any) => artist.name).join(', '),
