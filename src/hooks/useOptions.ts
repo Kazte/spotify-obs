@@ -7,7 +7,6 @@ export default function useOptions() {
   const [options, _setOptions] = useState<Options>({
     theme: themes.basic,
     show_album_image: true,
-    show_placeholder: true,
     show_progress_bar: true
   });
 

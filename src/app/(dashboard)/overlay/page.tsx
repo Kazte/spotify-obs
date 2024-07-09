@@ -194,23 +194,6 @@ export default function OverlayPage() {
                     }}
                   />
                 </div>
-
-                <div className='flex flex-row gap-2 justify-start items-center'>
-                  <label htmlFor='show_placeholder' className='text-lg'>
-                    Show Placeholder:
-                  </label>
-                  <SwitchCompo
-                    name='show_placeholder'
-                    defaultChecked={options.show_placeholder}
-                    onCheckedChange={(set) => {
-                      const newOptions = {
-                        ...options,
-                        show_placeholder: set
-                      };
-                      setOptions(newOptions);
-                    }}
-                  />
-                </div>
               </div>
               <Button
                 className='w-full mt-4'
@@ -273,11 +256,6 @@ export default function OverlayPage() {
                 No currently playing but you can still copy the overlay link and
                 change the options
               </p>
-              {!options.show_placeholder && (
-                <p className='text-white w-full md:w-[550px]'>
-                  Placeholder is disabled, this is only to show the widget
-                </p>
-              )}
             </div>
           </section>
         </Switch.Case>

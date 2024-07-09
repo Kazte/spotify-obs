@@ -82,23 +82,7 @@ export default function NowPlayingPage() {
     <>
       {currentlyPlaying && currentlyPlaying.is_playing ? (
         <PlayingWidget currentlyPlaying={currentlyPlaying} options={options} />
-      ) : (
-        <>
-          {options.show_placeholder && (
-            <PlayingWidget
-              currentlyPlaying={{
-                name: 'No currently playing',
-                artist: 'No artist',
-                album_image: '/placeholder.png',
-                current_progress: 1,
-                duration: 1,
-                is_playing: false
-              }}
-              options={options}
-            />
-          )}
-        </>
-      )}
+      ) : null}
     </>
   );
 }
