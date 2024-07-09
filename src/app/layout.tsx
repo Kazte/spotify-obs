@@ -1,5 +1,6 @@
 import './globals.css';
 
+import { Analytics } from '@vercel/analytics/react';
 import { CookiesProvider } from 'next-client-cookies/server';
 import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang='en'>
       <body className={inter.className}>
         <Toaster position='bottom-center' theme={'dark'} visibleToasts={1} />
+        <Analytics />
         <CookiesProvider>
           <ThemeProvider attribute='class' defaultTheme='dark'>
             {children}
