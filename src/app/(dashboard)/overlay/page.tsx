@@ -204,7 +204,7 @@ export default function OverlayPage() {
           }
         >
           <section className='flex-grow h-full flex flex-col lg:flex-row gap-4 justify-between sm:p-4 pt-4'>
-            <div className='w-fit'>
+            <div className='lg:w-[40%] w-full'>
               <h1 className='text-2xl font-bold text-white mb-4'>Options</h1>
               <div className='flex flex-col gap-4'>
                 <div className='flex flex-col gap-2'>
@@ -215,7 +215,7 @@ export default function OverlayPage() {
                     onValueChange={handleThemeChange}
                     defaultValue={options.theme.name}
                   >
-                    <SelectTrigger className='md:w-[280px] w-full'>
+                    <SelectTrigger className='lg:w-[280px] w-full'>
                       <SelectValue placeholder='Select theme' />
                     </SelectTrigger>
                     <SelectContent>
@@ -302,43 +302,47 @@ export default function OverlayPage() {
                 </p>
               </div>
 
-              <Button
-                className='w-full mt-4'
-                onClick={async () => {
-                  try {
-                    const overlay_url = new URL(
-                      `${process.env.NEXT_PUBLIC_URL}/now-playing`
-                    );
+              <div className='flex justify-center'>
+                <Button
+                  className='max-w-[300px] w-full mt-4'
+                  onClick={async () => {
+                    try {
+                      const overlay_url = new URL(
+                        `${process.env.NEXT_PUBLIC_URL}/now-playing`
+                      );
 
-                    const access_token = cookies.get('access_token');
+                      const access_token = cookies.get('access_token');
 
-                    overlay_url.searchParams.append(
-                      'access_token',
-                      access_token || ''
-                    );
+                      overlay_url.searchParams.append(
+                        'access_token',
+                        access_token || ''
+                      );
 
-                    overlay_url.searchParams.append(
-                      'theme',
-                      btoa(JSON.stringify(options))
-                    );
+                      overlay_url.searchParams.append(
+                        'theme',
+                        btoa(JSON.stringify(options))
+                      );
 
-                    await navigator.clipboard.writeText(overlay_url.toString());
+                      await navigator.clipboard.writeText(
+                        overlay_url.toString()
+                      );
 
-                    toast.success('Copied to clipboard');
-                  } catch (err) {
-                    toast.error('Error copying to clipboard');
-                  }
-                }}
-              >
-                Copy to Clipboard
-              </Button>
+                      toast.success('Copied to clipboard');
+                    } catch (err) {
+                      toast.error('Error copying to clipboard');
+                    }
+                  }}
+                >
+                  Copy to Clipboard
+                </Button>
+              </div>
             </div>
-            <div className='flex-grow flex flex-col justify-start items-center'>
-              <div className='bg-placeholder-background bg-cover bg-no-repeat bg-center flex justify-center items-center w-full md:w-[550px] h-fit p-10'>
+            <div className='flex flex-col justify-start items-center'>
+              <div className='bg-placeholder-background bg-cover bg-no-repeat bg-center flex justify-center items-center w-full lg:w-[550px] h-fit p-10'>
                 <Switch>
                   <Switch.Case condition={appState === APP_STATE.NO_CONTENT}>
                     <PlayingWidget
-                      className='mx-auto w-[550px]!'
+                      className='mx-auto w-[550px]'
                       currentlyPlaying={{
                         name: 'No currently playing',
                         artist: 'No artist',
@@ -359,7 +363,7 @@ export default function OverlayPage() {
                   </Switch.Default>
                 </Switch>
               </div>
-              <p className='text-white w-full md:w-[550px]'>
+              <p className='text-white w-full lg:w-[550px]'>
                 No currently playing but you can still copy the overlay link and
                 change the options
               </p>
