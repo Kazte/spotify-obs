@@ -3,7 +3,7 @@ import Code from '@/components/code';
 
 export default function AboutPage() {
   return (
-    <div className='container mx-auto p-4 flex flex-col gap-4'>
+    <div className='container mx-auto flex flex-col gap-4'>
       <h1 className='text-4xl font-bold'>About</h1>
       <p>
         This is a Spotify overlay for OBS. It allows you to display the current

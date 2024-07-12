@@ -5,13 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useToast } from './ui/use-toast';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   return (
-    <nav className='flex flex-col md:flex-row justify-center items-center w-full px-6 border-b border-b-zinc-700 md:px-20'>
+    <nav className='flex flex-col md:flex-row justify-center items-center w-full px-6 border-b border-b-zinc-700 md:px-20 mb-2'>
       <h1 className='text-2xl font-bold text-white md:flex-1 w-full text-center md:text-left mt-4 md:mt-0'>
         Spotify Widget for OBS
       </h1>
@@ -43,7 +44,10 @@ export default function Navbar() {
                 router.push('/');
               }
             } catch (err) {
-              toast.error('Error logging out');
+              toast({
+                description: 'Error logging out',
+                variant: 'destructive'
+              });
             }
           }}
         >

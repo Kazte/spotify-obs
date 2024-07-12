@@ -2,29 +2,30 @@
 
 import { Button } from './ui/button';
 import { Clipboard } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from './ui/use-toast';
 
 interface Props {
   code: string;
 }
 
 export default function Code({ code }: Props) {
+  const { toast } = useToast();
   const handleOnCopy = () => {
     navigator.clipboard.writeText(code);
-    toast('Copied code to clipboard');
+    toast({ description: 'Copied code to clipboard' });
   };
 
   return (
-    <div className='relative'>
+    <div className='relative '>
       <Button
         size={'icon'}
         variant='secondary'
         onClick={handleOnCopy}
-        className='absolute top-5 right-5'
+        className='absolute md:top-5 md:right-5 top-2 right-2'
       >
         <Clipboard />
       </Button>
-      <pre className='bg-container1 text-container1-foreground rounded-md p-4'>
+      <pre className='overflow-auto bg-container1 text-container1-foreground rounded-md p-4'>
         {code}
       </pre>
     </div>

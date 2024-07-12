@@ -22,10 +22,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { capitalizeEveryWord } from '@/lib/capitalize-word';
 import { checkThemeValidation } from '@/lib/check-theme';
 import { themes } from '@/themes/basic-theme';
-import { toast } from 'sonner';
 import { useCookies } from 'next-client-cookies';
 import useOptions from '@/hooks/useOptions';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/use-toast';
 
 const APP_STATE = {
   LOADING: 'LOADING',
@@ -39,6 +39,7 @@ export default function OverlayPage() {
     useState<CurrentlyPlaying | null>(null);
 
   const [appState, setAppState] = useState(APP_STATE.LOADING);
+  const { toast } = useToast();
 
   const cookies = useCookies();
   const router = useRouter();
@@ -183,7 +184,11 @@ export default function OverlayPage() {
 
       setOptions(newOptions);
     } catch (err: any) {
-      toast.error(err.message);
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive'
+      });
     }
   };
 
@@ -327,9 +332,12 @@ export default function OverlayPage() {
                         overlay_url.toString()
                       );
 
-                      toast.success('Copied to clipboard');
+                      toast({ description: 'Copied to clipboard' });
                     } catch (err) {
-                      toast.error('Error copying to clipboard');
+                      toast({
+                        description: 'Error copying to clipboard',
+                        variant: 'destructive'
+                      });
                     }
                   }}
                 >

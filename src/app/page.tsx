@@ -31,6 +31,14 @@ export default function Home() {
   useEffect(() => {
     if (cookies.get('access_token')) {
       router.push('/overlay');
+    } else if (cookies.get('refresh_token')) {
+      fetch('/api/access-token').then((res) => {
+        if (res.ok) {
+          router.push('/overlay');
+        } else {
+          setLoading(false);
+        }
+      });
     } else {
       setLoading(false);
     }
