@@ -298,7 +298,7 @@ export default function OverlayPage() {
                 />
                 <p className='text-sm text-muted-foreground'>
                   One link per line <br />
-                  Make sure to use direct links to files (raw css)
+                  Make sure to use direct links to files (raw json)
                 </p>
               </div>
 
